@@ -29,6 +29,9 @@ export class Station {
   @Column()
   address: string;
 
+  @Column()
+  status: string;
+
   @CreateDateColumn()
   created_at: Date;
 

@@ -3,6 +3,8 @@ import { CompanyController } from './company.controller';
 import { CompanyService } from './company.service';
 import { Company } from './entities/company.entity';
 import { createMock } from '@golevelup/ts-jest';
+import { DataSource } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('CompanyController', () => {
   let companyController: CompanyController;
@@ -14,8 +16,16 @@ describe('CompanyController', () => {
       providers: [
         CompanyService,
         {
+          provide: DataSource,
+          useValue: createMock<DataSource>(),
+        },
+        {
           provide: 'CompanyRepository',
           useValue: createMock<Company>(),
+        },
+        {
+          provide: 'EventEmitter2',
+          useValue: createMock<EventEmitter2>(),
         },
       ],
     }).compile();
@@ -37,14 +47,13 @@ describe('CompanyController', () => {
         created_at: new Date(),
         updated_at: new Date(),
         deleted_at: null,
-        parent: null,
+        parent_company: null,
         children: [],
         stations: [],
       };
 
-      jest
-        .spyOn(companyService, 'create')
-        .mockImplementation(async () => company);
+      // jest.spyOn(companyService, 'create').mockImplementation(() => company);
+      expect(companyController.create(company)).toBe(company);
     });
   });
 
@@ -64,9 +73,7 @@ describe('CompanyController', () => {
         },
       ];
 
-      jest
-        .spyOn(companyService, 'findAll')
-        .mockImplementation(async () => companies);
+      // jest.spyOn(companyService, 'findAll').mockImplementation(() => companies);
 
       expect(await companyController.findAll()).toBe(companies);
     });

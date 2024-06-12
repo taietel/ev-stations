@@ -12,7 +12,7 @@ export class StationCreatedListener {
   async handleStationCreated(event: StationCreatedEvent) {
     const company = await this.dataSource
       .getRepository(Company)
-      .findOneBy({ id: event.company });
+      .findOneBy({ id: event.id });
 
     const ancestors = await this.dataSource
       .getTreeRepository(Company)

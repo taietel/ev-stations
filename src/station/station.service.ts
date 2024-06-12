@@ -14,12 +14,22 @@ export class StationService {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  create(createStationDto: CreateStationDto) {
+  async create(createStationDto: CreateStationDto) {
     const station = new Station({ ...createStationDto } as unknown as Station);
-    new StationCreatedEvent();
-    this.eventEmitter.emit('station.created', station);
 
-    return this.stationRepository.save(station);
+    const stationRecord = await this.stationRepository.save(station);
+
+    const event = new StationCreatedEvent();
+    event.name = stationRecord.name;
+    event.id = stationRecord.id;
+    event.parent_company_id = stationRecord.company.id;
+    event.address = stationRecord.address;
+    event.latitude = stationRecord.latitude;
+    event.longitude = stationRecord.longitude;
+
+    this.eventEmitter.emit('station.created', event);
+
+    return stationRecord;
   }
 
   findAll() {

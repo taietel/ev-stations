@@ -10,6 +10,7 @@ import {
   Entity,
   Tree,
   TreeChildren,
+  AfterInsert,
 } from 'typeorm';
 
 @Entity('companies')
@@ -23,25 +24,13 @@ export class Company {
   id: number;
   @Column()
   name: string;
-  @Column()
-  address: string;
-  @CreateDateColumn()
-  created_at: Date;
-  @UpdateDateColumn()
-  updated_at: Date;
-  @DeleteDateColumn()
-  deleted_at: Date;
 
   @TreeChildren()
   children: Company[];
 
   @TreeParent()
-  parent: Company;
+  parent_company: Company;
 
   @OneToMany(() => Station, (station) => station.company)
   stations: Station[];
-
-  // constructor(partial: Partial<Company>) {
-  //   Object.assign(this, partial);
-  // }
 }

@@ -1,5 +1,4 @@
 export class CreateCompanyDto {
   name: string;
-  address: string;
-  company: any;
+  parent_company: number | null;
 }

@@ -4,24 +4,34 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, TreeRepository } from 'typeorm';
 import { Company } from './entities/company.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CompanyCreatedEvent } from './events/company-created.event';
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectRepository(Company) private companyRepository: Repository<Company>,
-    @InjectRepository(Company)
-    private companyTreeRepository: TreeRepository<Company>,
+    // @InjectRepository(Company)
+    // private companyTreeRepository: TreeRepository<Company>,
     private dataSource: DataSource,
+    private eventEmitter: EventEmitter2,
   ) {}
 
-  async create(createCompanyDto: CreateCompanyDto) {
+  async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     const company = new Company();
-
-    company.parent = await this.getParentCompany(createCompanyDto);
+    company.parent_company = await this.getParentCompany(createCompanyDto);
     company.name = createCompanyDto.name;
-    company.address = createCompanyDto.address;
 
-    return this.dataSource.manager.save(company);
+    const companyRecord = await this.dataSource.manager.save(company);
+    const event = new CompanyCreatedEvent();
+
+    event.id = companyRecord.id;
+    event.name = companyRecord.name;
+    event.parent_company_id = companyRecord.parent_company?.id;
+
+    this.eventEmitter.emit('company.created', companyRecord);
+
+    return companyRecord;
   }
 
   findAll() {
@@ -37,15 +47,17 @@ export class CompanyService {
   }
 
   remove(id: number) {
-    // move children to parent
+    // @TODO move children to parent
 
     return this.companyRepository.delete(id);
   }
 
   private async getParentCompany(createCompanyDto: CreateCompanyDto) {
-    if (!createCompanyDto.company) {
+    if (!createCompanyDto.parent_company) {
       return null;
     }
-    return this.companyRepository.findOneBy({ id: createCompanyDto.company });
+    return this.companyRepository.findOneBy({
+      id: createCompanyDto.parent_company,
+    });
   }
 }

@@ -6,6 +6,8 @@ import { StationModule } from './station/station.module';
 import { DataSource } from 'typeorm';
 import { CompanyModule } from './company/company.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { TypesenseModule } from './typesense/typesense.module';
+import { TypesenseService } from './typesense/typesense.service';
 
 @Module({
   imports: [
@@ -23,9 +25,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EventEmitterModule.forRoot(),
     StationModule,
     CompanyModule,
+    TypesenseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TypesenseService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}

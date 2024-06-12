@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { StationService } from './station.service';
 import { createMock } from '@golevelup/ts-jest';
 import { Station } from './entities/station.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('StationService', () => {
   let service: StationService;
@@ -13,6 +14,10 @@ describe('StationService', () => {
         {
           provide: 'StationRepository',
           useValue: createMock(Station),
+        },
+        {
+          provide: 'EventEmitter2',
+          useValue: createMock(EventEmitter2),
         },
       ],
       imports: [],
