@@ -52,6 +52,10 @@ export class CompanyService {
     return this.companyRepository.delete(id);
   }
 
+  getAllCompanies() {
+    return this.companyRepository.find();
+  }
+
   private async getParentCompany(createCompanyDto: CreateCompanyDto) {
     if (!createCompanyDto.parent_company) {
       return null;

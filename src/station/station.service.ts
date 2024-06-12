@@ -3,7 +3,7 @@ import { CreateStationDto } from './dto/create-station.dto';
 import { UpdateStationDto } from './dto/update-station.dto';
 import { Station } from './entities/station.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { StationCreatedEvent } from './events/station-created.event';
 
@@ -12,6 +12,7 @@ export class StationService {
   constructor(
     @InjectRepository(Station) private stationRepository: Repository<Station>,
     private eventEmitter: EventEmitter2,
+    private dataSource: DataSource,
   ) {}
 
   async create(createStationDto: CreateStationDto) {

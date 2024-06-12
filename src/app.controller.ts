@@ -28,12 +28,11 @@ export class AppController {
     const stations = await this.typesenseService.allStations();
 
     return stations;
-    console.log(stations);
   }
 
   @Get('/search-companies')
   async allCompanies() {
-    const companies = await this.typesenseService.allCompanies();
+    const companies = await this.typesenseService.getAllRecords('companies');
     console.log(companies);
     return companies;
   }

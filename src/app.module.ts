@@ -8,6 +8,7 @@ import { CompanyModule } from './company/company.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypesenseModule } from './typesense/typesense.module';
 import { TypesenseService } from './typesense/typesense.service';
+import { TypesenseInitializeCommand } from './typesense/commands/typesense.initialize.command';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { TypesenseService } from './typesense/typesense.service';
     TypesenseModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TypesenseService],
+  providers: [AppService, TypesenseService, TypesenseInitializeCommand],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
