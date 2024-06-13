@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile
     container_name: ev-stations
     environment:
-      - PORT=${PORT}
+      - PORT=${DATABASE_PORT}
     ports:
       - '3000:3000'
     volumes:

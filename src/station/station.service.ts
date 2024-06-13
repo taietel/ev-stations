@@ -46,8 +46,18 @@ export class StationService {
     return this.stationRepository.delete(id);
   }
 
-  getStationsForIndexing() {
-    return this.stationRepository.find();
+  async getStationsForIndexing() {
+    const rawRecords = await this.stationRepository.find();
+
+    return rawRecords.map((record) => {
+      return {
+        id: record.id,
+        company_id: record.company.toString(),
+        name: record.name,
+        location: [record.latitude, record.longitude],
+        ancestors: [],
+      };
+    });
   }
 
   async getStations(
@@ -95,9 +105,12 @@ export class StationService {
 
   private emitStationCreatedEvent(stationRecord: Station) {
     const event = new StationCreatedEvent();
+
+    console.log('Station Record', stationRecord);
+
     event.name = stationRecord.name;
     event.id = stationRecord.id;
-    event.parent_company_id = stationRecord.company.id;
+    event.company = stationRecord.company;
     event.address = stationRecord.address;
     event.latitude = stationRecord.latitude;
     event.longitude = stationRecord.longitude;

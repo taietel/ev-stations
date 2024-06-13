@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CompanyController } from './company.controller';
 import { CompanyService } from './company.service';
 
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
 import { Station } from '../station/entities/station.entity';
@@ -13,6 +13,8 @@ import AppConfig from '../config/app.config';
 describe('CompanyController', () => {
   let companyController: CompanyController;
   let module: TestingModule;
+  let eventEmitter: EventEmitter2;
+
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
@@ -25,7 +27,6 @@ describe('CompanyController', () => {
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
           useFactory: (configService: ConfigService) => {
-            console.log(configService.get<DataSourceOptions>('database'));
             return configService.get<DataSourceOptions>('database');
           },
           inject: [ConfigService],
@@ -36,7 +37,7 @@ describe('CompanyController', () => {
     }).compile();
 
     companyController = module.get<CompanyController>(CompanyController);
-    // companyService = module.get<CompanyService>(CompanyService);
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
   afterAll(async () => {
@@ -47,42 +48,45 @@ describe('CompanyController', () => {
     expect(companyController).toBeDefined();
   });
 
-  // describe('create', () => {
-  //   it('should return a company', async () => {
-  //     const company = {
-  //       name: 'Company Name',
-  //       address: 'Company Address',
-  //       created_at: new Date(),
-  //       updated_at: new Date(),
-  //       deleted_at: null,
-  //       parent_company: null,
-  //       children: [],
-  //       stations: [],
-  //     };
-  //
-  //     const companyRecord = await companyController.create(company);
-  //
-  //     expect(companyRecord.name).toBe(company.name);
-  //   });
-  // });
+  describe('create', () => {
+    it('should return a company and trigger event', async () => {
+      const company = {
+        name: 'Company Name',
+        parent_company: null,
+        stations: [],
+      };
+      // @TODO test if the event is triggered
+      const eventEmitterEmitSpy = jest.spyOn(eventEmitter, 'emit');
 
-  // describe('findAll', () => {
-  //   it('should return an array of companies', async () => {
-  //     const companies = [
-  //       {
-  //         name: 'Company Name',
-  //         address: 'Company Address',
-  //         created_at: new Date(),
-  //         updated_at: new Date(),
-  //         deleted_at: null,
-  //         parent: null,
-  //         children: [],
-  //         stations: [],
-  //       },
-  //     ];
-  //
-  //     const response = await companyController.findAll();
-  //     expect(response.length).toBe(companies.length);
-  //   });
-  // });
+      const companyRecord = await companyController.create(company);
+
+      expect(eventEmitterEmitSpy).toHaveBeenCalledWith(
+        'company.created',
+        companyRecord,
+      );
+
+      expect(companyRecord.name).toBe(company.name);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return an array of companies', async () => {
+      const companies = [
+        {
+          name: 'Company Name',
+          address: 'Company Address',
+          created_at: new Date(),
+          updated_at: new Date(),
+          deleted_at: null,
+          parent: null,
+          children: [],
+          stations: [],
+        },
+      ];
+
+      const response = await companyController.findAll();
+
+      expect(response.length).toBe(companies.length);
+    });
+  });
 });

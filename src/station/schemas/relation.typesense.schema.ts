@@ -1,29 +1,31 @@
 const schema = {
-  name: 'stations',
+  name: 'company_stations',
   num_documents: 0,
   fields: [
     {
       name: 'company_id',
+      type: 'string',
+      facet: false,
+      reference: 'companies.id',
+    },
+    {
+      name: 'station_id',
+      type: 'string',
+      facet: false,
+      reference: 'stations.id',
+    },
+    {
+      name: 'raw_station_id',
       type: 'int32',
       facet: false,
     },
     {
-      name: 'name',
-      type: 'string',
-      facet: false,
-    },
-    {
-      name: 'ancestors',
-      type: 'int32[]', // convert to string[]
-      facet: false,
-    },
-    {
-      name: 'location',
+      name: 'station_location',
       type: 'geopoint',
       facet: false,
     },
   ],
-  default_sorting_field: 'company_id',
+  default_sorting_field: 'raw_station_id',
 };
 
 export default schema;

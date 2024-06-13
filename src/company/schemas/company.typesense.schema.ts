@@ -16,9 +16,10 @@ const schema = {
       name: 'parent_id',
       type: 'int32',
       facet: false,
+      optional: true,
     },
   ],
-  default_sorting_field: 'parent_id',
+  default_sorting_field: 'company_id',
 };
 
 export default schema;

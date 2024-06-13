@@ -1,5 +1,5 @@
 export interface ICompanyIndex {
-  company_id: number;
+  company_id: number | string;
   name: string;
-  parent_company_id: number;
+  parent_id: number;
 }

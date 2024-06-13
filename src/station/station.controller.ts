@@ -25,8 +25,6 @@ export class StationController {
 
   @Get('search')
   async dbSearch(@Query() stationQueryDto: StationQueryDto) {
-    console.log(stationQueryDto);
-
     const { company_id, lat, long, distance } = stationQueryDto;
     const distanceInMeters = distance * 1000;
 
@@ -49,7 +47,7 @@ export class StationController {
       lat,
       long,
     );
-    console.log(searchResults);
+    return searchResults;
   }
 
   @Post()

@@ -49,7 +49,7 @@ export class CompanyService {
   }
 
   getAllCompanies() {
-    return this.companyRepository.find();
+    return this.companyRepository.find({ relations: ['parent_company'] });
   }
 
   async getCompaniesForIndexing(): Promise<ICompanyIndex[]> {
@@ -58,9 +58,9 @@ export class CompanyService {
 
     return companies.map((company) => {
       return {
-        company_id: company.id,
+        company_id: company.id.toString(),
         name: company.name,
-        parent_company_id: company.parent_company.id,
+        parent_id: company.parent_company?.id ?? null,
       };
     });
   }

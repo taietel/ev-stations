@@ -24,7 +24,15 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API for a "simple" EV stations search. The API is built with NestJS and uses a PostgreSQL database with PostGist extension to store the data. 
+It has endpoints for CRUD operations on the stations/companies and a search endpoint that returns the stations within a given radius from a given point.
+#### API documentation
+The API documentation is available at the `/api` endpoint. The documentation is generated with Swagger.
+
+
+### Future improvements
+- Implement a search engine like Typesense or Meilisearch to improve the search performance.
+- Implement an event-driven architecture to handle the data synchronization between the API and the search engine.
 
 ## Installation
 
@@ -58,6 +66,13 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Docker
+
+This app can be run in a Docker container. Make sure Docker is installed on your machine.
+```bash
+# build the image
+$ docker compose up --build
+```
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).

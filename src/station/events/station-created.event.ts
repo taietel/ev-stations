@@ -3,6 +3,6 @@ export class StationCreatedEvent {
   name: string;
   latitude: number;
   longitude: number;
-  parent_company_id: number;
+  company: any;
   address: string;
 }

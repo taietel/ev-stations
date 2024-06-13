@@ -8,6 +8,7 @@ export class TypesenseService {
   private readonly client: Client;
 
   constructor() {
+    // @TODO move this to a config file
     this.client = new Typesense.Client({
       nodes: [
         {
@@ -22,10 +23,9 @@ export class TypesenseService {
     });
   }
 
-  async createCollection(schema: typeof companyTypesenseSchema) {
+  createCollection(schema: typeof companyTypesenseSchema) {
     try {
-      await this.client.collections().create(schema as CollectionCreateSchema);
-      console.log('Collection created successfully');
+      return this.client.collections().create(schema as CollectionCreateSchema);
     } catch (error) {
       if (error.message.includes('already exists')) {
         console.log('Collection already exists');
@@ -78,5 +78,19 @@ export class TypesenseService {
     } catch (error) {
       console.log({ error });
     }
+  }
+
+  getCollections() {
+    return this.client.collections().retrieve();
+  }
+
+  async indexCompanies(companies: any[]) {
+    console.log(companies);
+    this.bulkImportDocuments('companies', companies);
+  }
+
+  async indexStations(stations: any[]) {
+    // const stations = await this.stationService.getStationsForIndexing();
+    this.bulkImportDocuments('stations', stations);
   }
 }
