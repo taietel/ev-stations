@@ -2,18 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, TreeRepository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Company } from './entities/company.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CompanyCreatedEvent } from './events/company-created.event';
+import { ICompanyIndex } from './interfaces/company.index.interface';
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectRepository(Company) private companyRepository: Repository<Company>,
-    // @InjectRepository(Company)
-    // private companyTreeRepository: TreeRepository<Company>,
-    private dataSource: DataSource,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -22,10 +20,10 @@ export class CompanyService {
     company.parent_company = await this.getParentCompany(createCompanyDto);
     company.name = createCompanyDto.name;
 
-    const companyRecord = await this.dataSource.manager.save(company);
+    const companyRecord = await this.companyRepository.manager.save(company);
     const event = new CompanyCreatedEvent();
 
-    event.id = companyRecord.id;
+    event.id = companyRecord?.id;
     event.name = companyRecord.name;
     event.parent_company_id = companyRecord.parent_company?.id;
 
@@ -46,14 +44,25 @@ export class CompanyService {
     return this.companyRepository.update(id, updateCompanyDto);
   }
 
-  remove(id: number) {
-    // @TODO move children to parent
-
+  async remove(id: number) {
     return this.companyRepository.delete(id);
   }
 
   getAllCompanies() {
     return this.companyRepository.find();
+  }
+
+  async getCompaniesForIndexing(): Promise<ICompanyIndex[]> {
+    // transform companies to typesense schema
+    const companies = await this.getAllCompanies();
+
+    return companies.map((company) => {
+      return {
+        company_id: company.id,
+        name: company.name,
+        parent_company_id: company.parent_company.id,
+      };
+    });
   }
 
   private async getParentCompany(createCompanyDto: CreateCompanyDto) {

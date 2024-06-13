@@ -2,7 +2,7 @@ name: 'ev-stations'
 
 services:
   db:
-    image: 'postgres:latest'
+    image: 'postgis/postgis:16-3.4'
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgres

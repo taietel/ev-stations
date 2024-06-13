@@ -1,29 +1,42 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StationService } from './station.service';
-import { createMock } from '@golevelup/ts-jest';
 import { Station } from './entities/station.entity';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { Company } from '../company/entities/company.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import AppConfig from '../config/app.config';
+import { DataSourceOptions } from 'typeorm';
 
 describe('StationService', () => {
   let service: StationService;
+  let module: TestingModule;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        StationService,
-        {
-          provide: 'StationRepository',
-          useValue: createMock(Station),
-        },
-        {
-          provide: 'EventEmitter2',
-          useValue: createMock(EventEmitter2),
-        },
+    module = await Test.createTestingModule({
+      providers: [StationService],
+      imports: [
+        EventEmitterModule.forRoot(),
+        TypeOrmModule.forFeature([Company, Station]),
+        ConfigModule.forRoot({
+          isGlobal: false,
+          load: [AppConfig],
+        }),
+        TypeOrmModule.forRootAsync({
+          imports: [ConfigModule],
+          useFactory: (configService: ConfigService) => {
+            return configService.get<DataSourceOptions>('database');
+          },
+          inject: [ConfigService],
+        }),
       ],
-      imports: [],
     }).compile();
 
     service = module.get<StationService>(StationService);
+  });
+
+  afterAll(async () => {
+    await module.close();
   });
 
   it('should be defined', () => {
@@ -54,7 +67,6 @@ describe('StationService', () => {
     it('should return an array of stations', async () => {
       const stations = [
         {
-          id: 1,
           name: 'Station Name',
           address: 'Station Address',
           latitude: 0,
@@ -75,7 +87,6 @@ describe('StationService', () => {
   describe('update', () => {
     it('should return a station', () => {
       const station = {
-        id: 1,
         name: 'Station Name updated',
         address: 'Station Address',
         latitude: 0,

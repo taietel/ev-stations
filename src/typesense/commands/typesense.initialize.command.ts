@@ -59,12 +59,13 @@ export class TypesenseInitializeCommand extends CommandRunner {
 
   async runIndexing(collectionName: string) {
     if (collectionName === 'companies') {
-      const companies = await this.companyService.getAllCompanies();
-
-      this.typesenseService.bulkImportDocuments(collectionName, companies);
+      // const companies = await this.companyService.getCompaniesForIndexing();
+      // this.typesenseService.bulkImportDocuments(collectionName, companies);
       // process.exit(0);
       // Index companies
     } else if (collectionName === 'stations') {
+      // const stations = await this.stationService.getStationsForIndexing();
+      // this.typesenseService.bulkImportDocuments(collectionName, stations);
     }
   }
 }

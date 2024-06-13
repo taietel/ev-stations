@@ -1,4 +1,4 @@
-import { Get, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import Typesense, { Client } from 'typesense';
 import companyTypesenseSchema from '../company/schemas/company.typesense.schema';
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections';
@@ -21,11 +21,6 @@ export class TypesenseService {
       logLevel: 'debug',
     });
   }
-
-  // async onModuleInit() {
-  //   await this.createCollection(companyTypesenseSchema);
-  //   await this.createCollection(stationTypesenseSchema);
-  // }
 
   async createCollection(schema: typeof companyTypesenseSchema) {
     try {

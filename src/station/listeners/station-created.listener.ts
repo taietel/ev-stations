@@ -1,20 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { StationCreatedEvent } from '../events/station-created.event';
 import { OnEvent } from '@nestjs/event-emitter';
-import { DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Company } from '../../company/entities/company.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class StationCreatedListener {
-  constructor(private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Company) private companyRepository: Repository<Company>,
+  ) {}
 
   @OnEvent('station.created')
   async handleStationCreated(event: StationCreatedEvent) {
-    const company = await this.dataSource
+    const company = await this.companyRepository.manager
       .getRepository(Company)
       .findOneBy({ id: event.id });
 
-    const ancestors = await this.dataSource
+    const ancestors = await this.companyRepository.manager
       .getTreeRepository(Company)
       .findAncestors(company);
 

@@ -4,6 +4,7 @@
 /build
 /pgdata
 /typesense-data
+/coverage
 
 # Logs
 logs
@@ -39,10 +40,10 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
-.env.development.local
+.env.testing
 .env.test.local
 .env.production.local
-.env.local
+.env.development
 
 # temp directory
 .temp

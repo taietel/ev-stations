@@ -3,25 +3,25 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StationModule } from './station/station.module';
-import { DataSource } from 'typeorm';
 import { CompanyModule } from './company/company.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypesenseModule } from './typesense/typesense.module';
-import { TypesenseService } from './typesense/typesense.service';
-import { TypesenseInitializeCommand } from './typesense/commands/typesense.initialize.command';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DataSourceOptions } from 'typeorm';
+import AppConfig from './config/app.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'db',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'ev_stations',
-      entities: [],
-      synchronize: true, // don't use it in production!
-      autoLoadEntities: true,
+    ConfigModule.forRoot({
+      isGlobal: false,
+      load: [AppConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        return configService.get<DataSourceOptions>('database');
+      },
+      inject: [ConfigService],
     }),
     EventEmitterModule.forRoot(),
     StationModule,
@@ -29,8 +29,8 @@ import { TypesenseInitializeCommand } from './typesense/commands/typesense.initi
     TypesenseModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TypesenseService, TypesenseInitializeCommand],
+  providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor() {}
 }
