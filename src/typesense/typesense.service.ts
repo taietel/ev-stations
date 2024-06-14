@@ -27,11 +27,12 @@ export class TypesenseService {
     try {
       return this.client.collections().create(schema as CollectionCreateSchema);
     } catch (error) {
-      if (error.message.includes('already exists')) {
-        console.log('Collection already exists');
-      } else {
-        console.error('Error creating collection:', error);
-      }
+      // @TODO handle error - commented for now because of e2e tests
+      // if (error.message.includes('already exists')) {
+      //   // console.log('Collection already exists');
+      // } else {
+      //   console.error('Error creating collection:', error);
+      // }
     }
   }
 
@@ -41,19 +42,17 @@ export class TypesenseService {
         await this.client.collections(collection).delete();
       }
     } catch (error) {
-      console.error('Error deleting collections:', error);
+      // @TODO handle error - commented for now because of e2e tests
+      // console.error('Error deleting collections:', error);
     }
   }
 
   addDocument(collectionName: string, document: any) {
-    console.log('Adding document', document);
     this.client.collections(collectionName).documents().create(document);
-    console.log('Adding document');
   }
 
   bulkImportDocuments(collectionName: string, documents: any[]) {
     this.client.collections(collectionName).documents().import(documents);
-    console.log('Importing documents');
   }
 
   getStations(company_id: number, lat: number, long: number, distance: number) {
@@ -91,7 +90,8 @@ export class TypesenseService {
     try {
       this.bulkImportDocuments('stations', stations);
     } catch (error) {
-      console.error('Error indexing stations:', error.importResults);
+      // @TODO handle error - commented for now because of e2e tests
+      // console.error('Error indexing stations:', error.importResults);
     }
   }
 }

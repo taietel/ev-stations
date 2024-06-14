@@ -20,16 +20,10 @@ export class AppController {
     try {
       // Delete if the collection already exists from a previous example run
       await this.typesenseService.deleteCollections(['stations']);
-
       return this.typesenseService.createCollection(stationTypesenseSchema);
     } catch (error) {
       return error;
     }
-  }
-
-  @Get('/typesense/collections')
-  getCollections() {
-    return this.typesenseService.getCollections();
   }
 
   @Get('/typesense/index-stations')

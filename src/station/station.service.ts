@@ -22,11 +22,7 @@ export class StationService {
       type: 'Point',
       coordinates: [station.latitude, station.longitude],
     };
-    const stationRecord = await this.stationRepository.save(station);
-    console.log(stationRecord);
-    this.emitStationCreatedEvent(stationRecord);
-
-    return stationRecord;
+    return this.stationRepository.save(station);
   }
 
   findAll() {
@@ -83,13 +79,13 @@ export class StationService {
     if (!root) {
       return [];
     }
-    console.log(root);
+
     const origin: Point = {
       type: 'Point',
       coordinates: [params.lat, params.long],
     };
 
-    const response = await this.companyRepository.manager
+    return this.companyRepository.manager
       .getTreeRepository(Company)
       .createDescendantsQueryBuilder('company', 'company_closure', root)
       .innerJoinAndSelect('company.stations', 'company_stations')
@@ -109,15 +105,10 @@ export class StationService {
         distance: params.distance,
       })
       .getMany();
-
-    console.log(response);
-    return response;
   }
 
-  private emitStationCreatedEvent(stationRecord: Station) {
+  emitStationCreatedEvent(stationRecord: Station) {
     const event = new StationCreatedEvent();
-
-    console.log('Station Record', stationRecord);
 
     event.name = stationRecord.name;
     event.id = stationRecord.id;

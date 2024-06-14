@@ -47,8 +47,12 @@ export class StationController {
   }
 
   @Post()
-  create(@Body() createStationDto: CreateStationDto) {
-    return this.stationService.create(createStationDto);
+  async create(@Body() createStationDto: CreateStationDto) {
+    const stationRecord = await this.stationService.create(createStationDto);
+    // emit event
+    this.stationService.emitStationCreatedEvent(stationRecord);
+
+    return stationRecord;
   }
 
   @Get()
