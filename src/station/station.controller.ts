@@ -37,13 +37,9 @@ export class StationController {
   }
 
   @Get('search-typesense')
-  async typesenseSearch(
-    @Query('company_id') companyId: number,
-    @Query('lat') lat: number,
-    @Query('long') long: number,
-    @Query('distance') distance: number,
-  ) {
-    return this.typesenseService.getStations(companyId, lat, long, distance);
+  async typesenseSearch(@Query() stationQueryDto: StationQueryDto) {
+    const { company_id, lat, long, distance } = stationQueryDto;
+    return this.typesenseService.getStations(company_id, lat, long, distance);
   }
 
   @Post()
