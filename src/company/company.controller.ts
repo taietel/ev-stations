@@ -11,7 +11,6 @@ import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { TypesenseService } from '../typesense/typesense.service';
 
 @ApiTags('Company')
 @Controller('company')
@@ -20,13 +19,6 @@ export class CompanyController {
     private readonly companyService: CompanyService,
     // private readonly typesenseService: TypesenseService,
   ) {}
-
-  // @Get('/search-companies')
-  // async allCompanies() {
-  //   const companies = await this.typesenseService.getAllRecords('companies');
-  //   console.log(companies);
-  //   return companies;
-  // }
 
   @Post()
   create(@Body() createCompanyDto: CreateCompanyDto) {

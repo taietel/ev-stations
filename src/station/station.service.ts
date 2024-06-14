@@ -23,7 +23,7 @@ export class StationService {
       coordinates: [station.latitude, station.longitude],
     };
     const stationRecord = await this.stationRepository.save(station);
-
+    console.log(stationRecord);
     this.emitStationCreatedEvent(stationRecord);
 
     return stationRecord;
@@ -38,8 +38,7 @@ export class StationService {
   }
 
   update(id: number, updateStationDto: UpdateStationDto) {
-    console.log(updateStationDto);
-    // return this.stationRepository.update(id, updateStationDto);
+    return this.stationRepository.update(id, updateStationDto);
   }
 
   remove(id: number) {
@@ -49,15 +48,24 @@ export class StationService {
   async getStationsForIndexing() {
     const rawRecords = await this.stationRepository.find();
 
-    return rawRecords.map((record) => {
-      return {
-        id: record.id,
-        company_id: record.company.toString(),
-        name: record.name,
-        location: [record.latitude, record.longitude],
-        ancestors: [],
-      };
-    });
+    return await Promise.all(
+      rawRecords.map(async (record) => {
+        const ancestors = await this.companyRepository.manager
+          .getTreeRepository(Company)
+          .findAncestors(record.company);
+
+        const ancestorIds = ancestors.map((ancestor) => ancestor.id);
+        if (ancestorIds.length === 0) {
+          ancestorIds.push(record.company.id);
+        }
+        return {
+          company_id: record.company.id,
+          name: record.name,
+          location: [record.latitude, record.longitude],
+          ancestors: ancestorIds,
+        };
+      }),
+    );
   }
 
   async getStations(
@@ -75,25 +83,25 @@ export class StationService {
     if (!root) {
       return [];
     }
-
+    console.log(root);
     const origin: Point = {
       type: 'Point',
       coordinates: [params.lat, params.long],
     };
 
-    return this.companyRepository.manager
+    const response = await this.companyRepository.manager
       .getTreeRepository(Company)
-      .createDescendantsQueryBuilder('company', 'company_closure_closure', root)
-      .innerJoinAndSelect('company.stations', 'stations')
-      .where(
-        'ST_DWithin(stations.geometry, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(stations.geometry)), :distance)',
+      .createDescendantsQueryBuilder('company', 'company_closure', root)
+      .innerJoinAndSelect('company.stations', 'company_stations')
+      .andWhere(
+        'ST_DWithin(company_stations.geometry, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(company_stations.geometry)), :distance)',
       )
       .addSelect(
-        'ST_Distance(stations.geometry, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(stations.geometry)))/1000',
+        'ST_Distance(company_stations.geometry, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(company_stations.geometry)))/1000',
         'stations_distance',
       )
       .orderBy(
-        'ST_Distance(stations.geometry, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(stations.geometry)))',
+        'ST_Distance(company_stations.geometry, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(company_stations.geometry)))',
         'ASC',
       )
       .setParameters({
@@ -101,6 +109,9 @@ export class StationService {
         distance: params.distance,
       })
       .getMany();
+
+    console.log(response);
+    return response;
   }
 
   private emitStationCreatedEvent(stationRecord: Station) {

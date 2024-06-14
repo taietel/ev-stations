@@ -56,13 +56,16 @@ export class TypesenseService {
     console.log('Importing documents');
   }
 
-  search(company_id: number, lat: number, long: number) {
-    return this.client.collections('stations').documents().search({
-      q: '*',
-      // query_by: 'station_name',
-      // filter_by: `company_id:${company_id}`,
-      // sort_by: `location(${lat}, ${long}):asc`,
-    });
+  getStations(company_id: number, lat: number, long: number, distance: number) {
+    return this.client
+      .collections('stations')
+      .documents()
+      .search({
+        q: '*',
+        filter_by: `ancestors:=[${company_id}] && location:(${lat}, ${long}, ${distance} km)`,
+        sort_by: `location(${lat}, ${long}, precision: 3 km):asc`,
+        per_page: 30,
+      });
   }
 
   allStations() {
@@ -84,13 +87,11 @@ export class TypesenseService {
     return this.client.collections().retrieve();
   }
 
-  async indexCompanies(companies: any[]) {
-    console.log(companies);
-    this.bulkImportDocuments('companies', companies);
-  }
-
   async indexStations(stations: any[]) {
-    // const stations = await this.stationService.getStationsForIndexing();
-    this.bulkImportDocuments('stations', stations);
+    try {
+      this.bulkImportDocuments('stations', stations);
+    } catch (error) {
+      console.error('Error indexing stations:', error.importResults);
+    }
   }
 }

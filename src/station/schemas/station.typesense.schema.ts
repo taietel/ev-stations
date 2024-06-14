@@ -16,6 +16,7 @@ const schema = {
       name: 'ancestors',
       type: 'int32[]', // convert to string[]
       facet: false,
+      index: true,
     },
     {
       name: 'location',

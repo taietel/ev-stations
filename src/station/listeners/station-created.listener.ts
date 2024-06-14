@@ -31,16 +31,6 @@ export class StationCreatedListener {
       location: [event.latitude, event.longitude],
       ancestors: companyIds,
     };
-    const relationDocuments = [];
-    for (const companyId of companyIds) {
-      this.typesenseService.addDocument('stations', stationDocument);
-      relationDocuments.push({
-        company_id: companyId.toString(),
-        station_id: stationDocument.id.toString(),
-        raw_station_id: event.id,
-        station_location: [event.latitude, event.longitude],
-      });
-    }
-    this.typesenseService.addDocument('company_stations', relationDocuments);
+    this.typesenseService.addDocument('stations', stationDocument);
   }
 }

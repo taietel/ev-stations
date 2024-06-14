@@ -4,15 +4,12 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company } from './entities/company.entity';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { CompanyCreatedEvent } from './events/company-created.event';
 import { ICompanyIndex } from './interfaces/company.index.interface';
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectRepository(Company) private companyRepository: Repository<Company>,
-    private eventEmitter: EventEmitter2,
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
@@ -20,20 +17,11 @@ export class CompanyService {
     company.parent_company = await this.getParentCompany(createCompanyDto);
     company.name = createCompanyDto.name;
 
-    const companyRecord = await this.companyRepository.manager.save(company);
-    const event = new CompanyCreatedEvent();
-
-    event.id = companyRecord?.id;
-    event.name = companyRecord.name;
-    event.parent_company_id = companyRecord.parent_company?.id;
-
-    this.eventEmitter.emit('company.created', companyRecord);
-
-    return companyRecord;
+    return this.companyRepository.manager.save(company);
   }
 
   findAll() {
-    return this.companyRepository.find();
+    return this.companyRepository.find({ relations: ['parent_company'] });
   }
 
   findOne(id: number) {

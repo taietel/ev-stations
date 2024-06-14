@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CompanyController } from './company.controller';
 import { CompanyService } from './company.service';
 
-import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
 import { Station } from '../station/entities/station.entity';
@@ -13,7 +13,6 @@ import AppConfig from '../config/app.config';
 describe('CompanyController', () => {
   let companyController: CompanyController;
   let module: TestingModule;
-  let eventEmitter: EventEmitter2;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -37,7 +36,6 @@ describe('CompanyController', () => {
     }).compile();
 
     companyController = module.get<CompanyController>(CompanyController);
-    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
   afterAll(async () => {
@@ -55,16 +53,7 @@ describe('CompanyController', () => {
         parent_company: null,
         stations: [],
       };
-      // @TODO test if the event is triggered
-      const eventEmitterEmitSpy = jest.spyOn(eventEmitter, 'emit');
-
       const companyRecord = await companyController.create(company);
-
-      expect(eventEmitterEmitSpy).toHaveBeenCalledWith(
-        'company.created',
-        companyRecord,
-      );
-
       expect(companyRecord.name).toBe(company.name);
     });
   });
