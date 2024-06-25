@@ -146,6 +146,6 @@ async function runSearchTest() {
 //     console.error('Error running test script:', error.message);
 //   });
 
-runSearchTest().catch((error) => {
-  console.error('Error running test script:', error.message);
-});
+// runSearchTest().catch((error) => {
+//   console.error('Error running test script:', error.message);
+// });

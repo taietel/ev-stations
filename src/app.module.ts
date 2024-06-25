@@ -9,6 +9,7 @@ import { TypesenseModule } from './typesense/typesense.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSourceOptions } from 'typeorm';
 import AppConfig from './config/app.config';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import AppConfig from './config/app.config';
       },
       inject: [ConfigService],
     }),
+    CacheModule.register({ isGlobal: true }),
     EventEmitterModule.forRoot(),
     StationModule,
     CompanyModule,

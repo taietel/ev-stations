@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Inject,
 } from '@nestjs/common';
 import { StationService } from './station.service';
 import { CreateStationDto } from './dto/create-station.dto';
@@ -14,6 +15,9 @@ import { UpdateStationDto } from './dto/update-station.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { TypesenseService } from '../typesense/typesense.service';
 import { StationQueryDto } from './dto/station.query.dto';
+import { Cache } from 'cache-manager';
+import * as geohash from 'ngeohash';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @ApiTags('Station')
 @Controller('station')
@@ -21,19 +25,31 @@ export class StationController {
   constructor(
     private readonly stationService: StationService,
     private readonly typesenseService: TypesenseService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @Get('search')
   async dbSearch(@Query() stationQueryDto: StationQueryDto) {
     const { company_id, lat, long, distance } = stationQueryDto;
     const distanceInMeters = distance * 1000;
+    const cacheKey = `${geohash.encode(lat, long, 5)}:${distance}`;
 
-    return this.stationService.getStations({
+    const cachedStations = await this.cacheManager.get(cacheKey);
+
+    if (cachedStations) {
+      return cachedStations;
+    }
+
+    const searchResponse = await this.stationService.getStations({
       company_id,
       lat,
       long,
       distance: distanceInMeters,
     });
+
+    await this.cacheManager.set(cacheKey, searchResponse, 5 * 60000); // 30 minutes
+
+    return searchResponse;
   }
 
   @Get('search-typesense')
