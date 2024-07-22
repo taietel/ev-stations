@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const BASE_URL = 'http://localhost:3000'; // Replace with your API's base URL
 
@@ -7,8 +7,7 @@ async function measureTime(fn) {
   const start = process.hrtime();
   await fn();
   const end = process.hrtime(start);
-  const timeInSeconds = end[0] + end[1] / 1e9;
-  return timeInSeconds;
+  return end[0] + end[1] / 1e9;
 }
 
 // Function to add companies
