@@ -11,6 +11,11 @@ services:
       - '5432:5432'
     volumes:
       - './pgdata:/var/lib/postgresql/data'
+  redis_db:
+    image: 'redis:6.2.5'
+    container_name: ev-stations-redis
+    ports:
+      - '6379:6379'
   typesense:
     environment:
       - TYPESENSE_API_KEY=xyz
@@ -21,16 +26,69 @@ services:
     volumes:
       - ./typesense-data:/data
     command: '--data-dir /data --api-key=xyz --enable-cors'
-  app:
+  api-gateway:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: apps/api-gateway/Dockerfile
+    command: 'npm run start api-gateway'
+    develop:
+      watch:
+        - action: sync
+#          path: './apps/api-gateway/src'
+          target: '/src'
+          ignore:
+            - node_modules
     container_name: ev-stations
     environment:
       - PORT=${DATABASE_PORT}
     ports:
       - '3000:3000'
     volumes:
-      - './src:/app/src'
+        - '.:/user/src/app'
+        - '/usr/src/app/node_modules'
+
     depends_on:
       - db
+      - redis_db
+      - typesense
+  stations:
+    build:
+      context: .
+      dockerfile: apps/stations/Dockerfile
+    command: 'npm run start stations'
+    develop:
+      watch:
+        - action: sync
+          path: './apps/stations/src'
+          target: '/src'
+          ignore:
+            - node_modules
+    container_name: ev-stations-service
+    volumes:
+      - './src:/app/src'
+      - '/usr/src/app/node_modules'
+    depends_on:
+      - db
+      - redis_db
+      - typesense
+  search:
+    build:
+      context: .
+      dockerfile: apps/search/Dockerfile
+    command: 'npm run start search'
+    develop:
+      watch:
+        - action: sync
+          path: './apps/search/src'
+          target: '/src'
+          ignore:
+            - node_modules
+
+    container_name: ev-stations-search
+    volumes:
+      - './src:/app/src'
+      - '/usr/src/app/node_modules'
+    depends_on:
+      - db
+      - redis_db
+      - typesense
