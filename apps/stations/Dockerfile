@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+
 # Install the app dependencies
 RUN npm install --legacy-peer-deps
 

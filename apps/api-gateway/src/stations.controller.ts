@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Inject,
+  Param,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -18,16 +19,13 @@ export class StationsController {
 
   @Get('/')
   getStations() {
-    console.log('get-stations ----------------------------');
-    return { message: 'get-stations' };
-    // return this.stationsClient.send('get-stations', {});
+    return this.stationsClient.send('get-stations', {});
   }
 
   @Get('/:id')
-  getStation() {
-    console.log('get-stations ----------------------------');
-    return { message: 'get-stations' };
-    // return this.stationsClient.send('get-station', {});
+  getStation(@Param('id') id: number) {
+    console.log('getStation id:', id);
+    return this.stationsClient.send('get-station', { id });
   }
 
   @Post('/')

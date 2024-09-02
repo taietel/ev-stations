@@ -30,11 +30,13 @@ services:
     build:
       context: .
       dockerfile: apps/api-gateway/Dockerfile
+    env_file:
+      - './apps/api-gateway/.env'
     command: 'npm run start api-gateway'
     develop:
       watch:
         - action: sync
-#          path: './apps/api-gateway/src'
+          path: './apps/api-gateway/src'
           target: '/src'
           ignore:
             - node_modules
@@ -55,6 +57,8 @@ services:
     build:
       context: .
       dockerfile: apps/stations/Dockerfile
+    env_file:
+      - './apps/stations/.env'
     command: 'npm run start stations'
     develop:
       watch:
@@ -75,6 +79,8 @@ services:
     build:
       context: .
       dockerfile: apps/search/Dockerfile
+    env_file:
+      - './apps/search/.env'
     command: 'npm run start search'
     develop:
       watch:
@@ -83,7 +89,6 @@ services:
           target: '/src'
           ignore:
             - node_modules
-
     container_name: ev-stations-search
     volumes:
       - './src:/app/src'

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Inject,
+  Param,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -22,9 +23,8 @@ export class CompaniesController {
   }
 
   @Get('/:id')
-  getCompany() {
-    console.log('get-company ----------------------------');
-    return this.stationsClient.send('get-company', {});
+  getCompany(@Param('id') id: number) {
+    return this.stationsClient.send('get-company', { id });
   }
 
   @Post('/')

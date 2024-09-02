@@ -47,4 +47,9 @@ export class StationsController {
   getStations() {
     return this.stationsService.getStations();
   }
+
+  @MessagePattern('get-station')
+  getStation({ id }: { id: number }) {
+    return this.stationsService.getStation(id);
+  }
 }
