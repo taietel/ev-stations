@@ -13,4 +13,8 @@ export class SearchService {
   ) {
     return this.typesenseService.getStations(company_id, lat, long, distance);
   }
+
+  async indexStation(station: any) {
+    this.typesenseService.addDocument('stations', station);
+  }
 }

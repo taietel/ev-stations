@@ -52,4 +52,10 @@ export class StationsController {
   getStation({ id }: { id: number }) {
     return this.stationsService.getStation(id);
   }
+
+  // hack zone
+  @EventPattern('index-stations')
+  indexStations() {
+    return this.stationsService.indexAllStations();
+  }
 }

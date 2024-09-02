@@ -1,16 +1,18 @@
-import { Injectable, Param } from '@nestjs/common';
+import { Inject, Injectable, Param } from '@nestjs/common';
 import { CreateStationDto } from './dto/create-station.dto';
 import { UpdateStationDto } from './dto/update-station.dto';
 import { Station } from './entities/station.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Point, Repository } from 'typeorm';
 import { Company } from '../company/entities/company.entity';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class StationService {
   constructor(
     @InjectRepository(Station) private stationRepository: Repository<Station>,
     @InjectRepository(Company) private companyRepository: Repository<Company>,
+    @Inject('INDEX_SERVICE') private searchServiceClient: ClientProxy,
   ) {}
 
   async create(createStationDto: CreateStationDto) {
@@ -19,7 +21,20 @@ export class StationService {
       type: 'Point',
       coordinates: [station.latitude, station.longitude],
     };
-    return this.stationRepository.save(station);
+    const response = this.stationRepository.save(station);
+    const stationData = await response;
+    const ancestorIds = await this.getAncestorIds(stationData.company);
+
+    const indexData = {
+      company_id: stationData.company.id,
+      name: stationData.name,
+      location: [stationData.latitude, stationData.longitude],
+      ancestors: ancestorIds,
+    };
+
+    // TODO - send a message to the indexing service to index the new station
+    this.searchServiceClient.emit('index_station', indexData);
+    return response;
   }
 
   findAll() {
@@ -38,19 +53,12 @@ export class StationService {
     return this.stationRepository.delete(id);
   }
 
-  async getStationsForIndexing() {
+  async indexAllStations() {
     const rawRecords = await this.stationRepository.find();
 
-    return await Promise.all(
+    const stationsData = await Promise.all(
       rawRecords.map(async (record) => {
-        const ancestors = await this.companyRepository.manager
-          .getTreeRepository(Company)
-          .findAncestors(record.company);
-
-        const ancestorIds = ancestors.map((ancestor) => ancestor.id);
-        if (ancestorIds.length === 0) {
-          ancestorIds.push(record.company.id);
-        }
+        const ancestorIds = await this.getAncestorIds(record.company);
         return {
           company_id: record.company.id,
           name: record.name,
@@ -59,6 +67,27 @@ export class StationService {
         };
       }),
     );
+
+    this.searchServiceClient.emit('index-stations', stationsData);
+  }
+
+  /**
+   * Retrieves the ancestor IDs for a given company.
+   * @param company The company entity
+   * @returns The list of ancestor IDs
+   */
+  private async getAncestorIds(company: Company): Promise<number[]> {
+    const ancestors = await this.companyRepository.manager
+      .getTreeRepository(Company)
+      .findAncestors(company);
+
+    const ancestorIds = ancestors.map((ancestor) => ancestor.id);
+
+    if (ancestorIds.length === 0) {
+      ancestorIds.push(company.id);
+    }
+
+    return ancestorIds;
   }
 
   async fetchNearbyStations(

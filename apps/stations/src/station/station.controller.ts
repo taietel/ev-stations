@@ -14,6 +14,7 @@ import { CreateStationDto } from './dto/create-station.dto';
 import { UpdateStationDto } from './dto/update-station.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { StationQueryDto } from './dto/station.query.dto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @ApiTags('Station')
 @Controller('station')

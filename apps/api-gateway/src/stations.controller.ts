@@ -24,7 +24,6 @@ export class StationsController {
 
   @Get('/:id')
   getStation(@Param('id') id: number) {
-    console.log('getStation id:', id);
     return this.stationsClient.send('get-station', { id });
   }
 
@@ -39,7 +38,12 @@ export class StationsController {
   }
 
   @Delete('/:id')
-  removeStation() {
-    return this.stationsClient.send('remove-station', {});
+  removeStation(@Param('id') id: number) {
+    return this.stationsClient.send('remove-station', { id });
+  }
+
+  @Get('/index')
+  indexStations() {
+    return this.stationsClient.send('index-stations', {});
   }
 }

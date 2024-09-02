@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import AppConfig from './config/app.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -14,6 +15,18 @@ import { DataSourceOptions } from 'typeorm';
       isGlobal: false,
       load: [AppConfig],
     }),
+    ClientsModule.registerAsync([
+      {
+        name: 'INDEX_SERVICE',
+        useFactory: async () => ({
+          // @TODO - use config
+          transport: Transport.REDIS,
+          options: {
+            host: 'redis_db',
+          },
+        }),
+      },
+    ]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {

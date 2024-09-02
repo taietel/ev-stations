@@ -1,12 +1,13 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Query } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { SearchQueryDto } from './dto/search.query.dto';
+import { EventPattern, MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class SearchController {
   constructor(private readonly searchServiceService: SearchService) {}
 
-  @Get('search-typesense')
+  @MessagePattern('search-typesense')
   async typesenseSearch(@Query() stationQueryDto: SearchQueryDto) {
     const { company_id, lat, long, distance } = stationQueryDto;
     return this.searchServiceService.searchStations(
@@ -15,5 +16,10 @@ export class SearchController {
       long,
       distance,
     );
+  }
+
+  @EventPattern('index-station')
+  async typesenseIndexStation(station: any) {
+    return this.searchServiceService.indexStation(station);
   }
 }

@@ -17,8 +17,6 @@ export class StationsService {
 
   async getCompanies() {
     return this.companyService.findAll();
-
-    // return this.companyService.getCompaniesForIndexing();
   }
 
   async updateCompany(id: number, data: CreateCompanyDto) {
@@ -26,6 +24,7 @@ export class StationsService {
   }
 
   async removeCompany(id: number) {
+    // TODO: update stations of this company to it's parent company or remove them if there is no parent company
     return this.companyService.remove(id);
   }
 
@@ -49,8 +48,8 @@ export class StationsService {
     return this.stationService.remove(id);
   }
 
-  async getStationsForIndexing() {
-    return this.stationService.getStationsForIndexing();
+  async indexAllStations() {
+    return this.stationService.indexAllStations();
   }
 
   async getNearbyStations(
