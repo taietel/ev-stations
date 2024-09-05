@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { StationsController } from './stations.controller';
-import { StationsService } from './stations.service';
+import { DistributionController } from './distribution.controller';
+import { DistributionService } from './distribution.service';
 import { CompanyModule } from './company/company.module';
 import { StationModule } from './station/station.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,16 +15,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       isGlobal: false,
       load: [AppConfig],
     }),
-    ClientsModule.registerAsync([
+    ClientsModule.register([
       {
-        name: 'INDEX_SERVICE',
-        useFactory: async () => ({
-          // @TODO - use config
-          transport: Transport.REDIS,
-          options: {
-            host: 'redis_db',
-          },
-        }),
+        name: 'SEARCH_SERVICE',
+        transport: Transport.REDIS,
+        options: {
+          host: 'redis_db',
+        },
       },
     ]),
     TypeOrmModule.forRootAsync({
@@ -37,7 +34,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     CompanyModule,
     StationModule,
   ],
-  controllers: [StationsController],
-  providers: [StationsService],
+  controllers: [DistributionController],
+  providers: [DistributionService],
 })
-export class StationsModule {}
+export class DistributionModule {}

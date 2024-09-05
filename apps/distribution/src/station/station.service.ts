@@ -12,7 +12,7 @@ export class StationService {
   constructor(
     @InjectRepository(Station) private stationRepository: Repository<Station>,
     @InjectRepository(Company) private companyRepository: Repository<Company>,
-    @Inject('INDEX_SERVICE') private searchServiceClient: ClientProxy,
+    @Inject('SEARCH_SERVICE') private searchServiceClient: ClientProxy,
   ) {}
 
   async create(createStationDto: CreateStationDto) {
@@ -21,19 +21,24 @@ export class StationService {
       type: 'Point',
       coordinates: [station.latitude, station.longitude],
     };
-    const response = this.stationRepository.save(station);
+    const response = this.stationRepository.insert(station);
     const stationData = await response;
-    const ancestorIds = await this.getAncestorIds(stationData.company);
+    const insertedId = stationData.identifiers[0].id;
+
+    const stationRecord = await this.stationRepository.findOne({
+      where: { id: insertedId },
+    });
+
+    const ancestorIds = await this.getAncestorIds(stationRecord.company);
 
     const indexData = {
-      company_id: stationData.company.id,
-      name: stationData.name,
-      location: [stationData.latitude, stationData.longitude],
+      company_id: stationRecord.company.id,
+      name: stationRecord.name,
+      location: [stationRecord.latitude, stationRecord.longitude],
       ancestors: ancestorIds,
     };
 
-    // TODO - send a message to the indexing service to index the new station
-    this.searchServiceClient.emit('index_station', indexData);
+    this.searchServiceClient.emit('index-station', indexData);
     return response;
   }
 
@@ -55,6 +60,7 @@ export class StationService {
 
   async indexAllStations() {
     const rawRecords = await this.stationRepository.find();
+    console.log('indexAllStations');
 
     const stationsData = await Promise.all(
       rawRecords.map(async (record) => {
@@ -67,7 +73,7 @@ export class StationService {
         };
       }),
     );
-
+    // console.log('stationsData', stationsData);
     this.searchServiceClient.emit('index-stations', stationsData);
   }
 

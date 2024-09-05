@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ApiGatewayController } from './api-gateway.controller';
-import { ApiGatewayService } from './api-gateway.service';
+import { GatewayController } from './gateway.controller';
+import { GatewayService } from './gateway.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CompaniesController } from './companies.controller';
 import { StationsController } from './stations.controller';
@@ -16,7 +16,7 @@ import { StationsController } from './stations.controller';
         },
       },
       {
-        name: 'STATIONS_SERVICE',
+        name: 'DISTRIBUTION_SERVICE',
         transport: Transport.REDIS,
         options: {
           host: 'redis_db',
@@ -24,7 +24,7 @@ import { StationsController } from './stations.controller';
       },
     ]),
   ],
-  controllers: [ApiGatewayController, CompaniesController, StationsController],
-  providers: [ApiGatewayService],
+  controllers: [GatewayController, CompaniesController, StationsController],
+  providers: [GatewayService],
 })
-export class ApiGatewayModule {}
+export class GatewayModule {}

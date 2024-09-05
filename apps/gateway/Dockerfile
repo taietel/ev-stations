@@ -4,7 +4,6 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-
 # Install the app dependencies
 RUN npm install --legacy-peer-deps
 
@@ -15,4 +14,4 @@ RUN npm run build
 
 # Run the NestJS app
 #CMD ["npm", "run", "start:dev"]
-CMD ["node", "dist/apps/stations/main"]
+CMD ["node", "dist/apps/gateway/main"]

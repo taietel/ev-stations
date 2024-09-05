@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
-import { StationsService } from './stations.service';
+import { DistributionService } from './distribution.service';
 import { CreateCompanyDto } from './company/dto/create-company.dto';
 import { EventPattern, MessagePattern } from '@nestjs/microservices';
 import { CreateStationDto } from './station/dto/create-station.dto';
 
 @Controller()
-export class StationsController {
-  constructor(private readonly stationsService: StationsService) {}
+export class DistributionController {
+  constructor(private readonly stationsService: DistributionService) {}
 
   @EventPattern('create-company')
   createCompany(data: CreateCompanyDto) {

@@ -14,29 +14,28 @@ import { CreateStationDto } from './dto/create-station.dto';
 import { UpdateStationDto } from './dto/update-station.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { StationQueryDto } from './dto/station.query.dto';
-import { ClientProxy } from '@nestjs/microservices';
 
 @ApiTags('Station')
 @Controller('station')
 export class StationController {
   constructor(private readonly stationService: StationService) {}
 
-  @Get('search')
-  async dbSearch(@Query() stationQueryDto: StationQueryDto) {
-    const { company_id, lat, long, distance } = stationQueryDto;
-    const distanceInMeters = distance * 1000;
-    return await this.stationService.fetchNearbyStations({
-      company_id,
-      lat,
-      long,
-      distance: distanceInMeters,
-    });
-  }
+  // @Get('search')
+  // async dbSearch(@Query() stationQueryDto: StationQueryDto) {
+  //   const { company_id, lat, long, distance } = stationQueryDto;
+  //   const distanceInMeters = distance * 1000;
+  //   return await this.stationService.fetchNearbyStations({
+  //     company_id,
+  //     lat,
+  //     long,
+  //     distance: distanceInMeters,
+  //   });
+  // }
 
   // @Get('search-typesense')
   // async typesenseSearch(@Query() stationQueryDto: StationQueryDto) {
   //   const { company_id, lat, long, distance } = stationQueryDto;
-  //   return this.typesenseService.getStations(company_id, lat, long, distance);
+  //   return this.stationService.getStations(company_id, lat, long, distance);
   // }
 
   @Post()

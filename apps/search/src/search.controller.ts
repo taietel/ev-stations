@@ -1,15 +1,19 @@
-import { Controller, Query } from '@nestjs/common';
+import { Controller, Param, Query } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { SearchQueryDto } from './dto/search.query.dto';
-import { EventPattern, MessagePattern } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller()
 export class SearchController {
   constructor(private readonly searchServiceService: SearchService) {}
 
-  @MessagePattern('search-typesense')
-  async typesenseSearch(@Query() stationQueryDto: SearchQueryDto) {
+  @MessagePattern('search')
+  async typesenseSearch(stationQueryDto: SearchQueryDto) {
+    console.log('stationQueryDto', stationQueryDto);
+
     const { company_id, lat, long, distance } = stationQueryDto;
+
+    console.log(company_id, lat, long, distance);
     return this.searchServiceService.searchStations(
       company_id,
       lat,

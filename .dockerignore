@@ -1,4 +1,4 @@
-apps/api-gateway/Dockerfile
+apps/gateway/Dockerfile
 .dockerignore
 node_modules/
 npm-debug.log

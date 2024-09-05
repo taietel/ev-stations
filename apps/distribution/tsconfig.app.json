@@ -18,7 +18,7 @@
     "allowJs": true, // needed mostly for testing
     "paths": {},
     "declaration": false,
-    "outDir": "../../dist/apps/stations"
+    "outDir": "../../dist/apps/distribution"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

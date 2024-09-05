@@ -8,18 +8,23 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreateStationDto } from '../../stations/src/station/dto/create-station.dto';
+import { CreateStationDto } from '../../distribution/src/station/dto/create-station.dto';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Controller('/stations')
 export class StationsController {
   constructor(
-    @Inject('STATIONS_SERVICE') private stationsClient: ClientProxy,
+    @Inject('DISTRIBUTION_SERVICE') private stationsClient: ClientProxy,
   ) {}
 
   @Get('/')
   getStations() {
     return this.stationsClient.send('get-stations', {});
+  }
+
+  @Get('/index')
+  indexStations() {
+    return this.stationsClient.emit('index-stations', {});
   }
 
   @Get('/:id')
@@ -40,10 +45,5 @@ export class StationsController {
   @Delete('/:id')
   removeStation(@Param('id') id: number) {
     return this.stationsClient.send('remove-station', { id });
-  }
-
-  @Get('/index')
-  indexStations() {
-    return this.stationsClient.send('index-stations', {});
   }
 }

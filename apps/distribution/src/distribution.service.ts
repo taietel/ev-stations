@@ -5,7 +5,7 @@ import { CreateCompanyDto } from './company/dto/create-company.dto';
 import { CreateStationDto } from './station/dto/create-station.dto';
 
 @Injectable()
-export class StationsService {
+export class DistributionService {
   constructor(
     private companyService: CompanyService,
     private stationService: StationService,

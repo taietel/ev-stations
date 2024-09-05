@@ -18,7 +18,7 @@
     "allowJs": true, // needed mostly for testing
     "paths": {},
     "declaration": false,
-    "outDir": "../../dist/apps/api-gateway"
+    "outDir": "../../dist/apps/gateway"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

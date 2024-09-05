@@ -1,4 +1,4 @@
-name: 'ev-stations'
+name: 'evs-network'
 
 services:
   db:
@@ -6,14 +6,14 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgres
-    container_name: ev-stations-db
+    container_name: evs-network-db
     ports:
       - '5432:5432'
     volumes:
       - './pgdata:/var/lib/postgresql/data'
   redis_db:
     image: 'redis:6.2.5'
-    container_name: ev-stations-redis
+    container_name: evs-network-redis
     ports:
       - '6379:6379'
   typesense:
@@ -26,21 +26,21 @@ services:
     volumes:
       - ./typesense-data:/data
     command: '--data-dir /data --api-key=xyz --enable-cors'
-  api-gateway:
+  gateway:
     build:
       context: .
-      dockerfile: apps/api-gateway/Dockerfile
+      dockerfile: apps/gateway/Dockerfile
     env_file:
-      - './apps/api-gateway/.env'
-    command: 'npm run start api-gateway'
+      - 'apps/gateway/.env'
+    command: 'npm run start gateway'
     develop:
       watch:
-        - action: sync
-          path: './apps/api-gateway/src'
+        - action: rebuild
+          path: './apps/gateway/src'
           target: '/src'
           ignore:
             - node_modules
-    container_name: ev-stations
+    container_name: evs-network-gateway
     environment:
       - PORT=${DATABASE_PORT}
     ports:
@@ -53,21 +53,21 @@ services:
       - db
       - redis_db
       - typesense
-  stations:
+  distribution:
     build:
       context: .
-      dockerfile: apps/stations/Dockerfile
+      dockerfile: apps/distribution/Dockerfile
     env_file:
-      - './apps/stations/.env'
-    command: 'npm run start stations'
+      - 'apps/distribution/.env'
+    command: 'npm run start distribution'
     develop:
       watch:
-        - action: sync
-          path: './apps/stations/src'
+        - action: rebuild
+          path: './apps/distribution/src'
           target: '/src'
           ignore:
             - node_modules
-    container_name: ev-stations-service
+    container_name: evs-network-distribution
     volumes:
       - './src:/app/src'
       - '/usr/src/app/node_modules'
@@ -89,7 +89,7 @@ services:
           target: '/src'
           ignore:
             - node_modules
-    container_name: ev-stations-search
+    container_name: evs-network-search
     volumes:
       - './src:/app/src'
       - '/usr/src/app/node_modules'
